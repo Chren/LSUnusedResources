@@ -118,14 +118,20 @@ static NSString * const kSuffixPng         = @".png";
             
             NSString *keyName = [StringUtils stringByRemoveResourceSuffix:name];
 
+            BOOL isDir = NO;
+            ResourceFileInfo *info = [ResourceFileInfo new];
+            info.name = name;
+            info.path = path;
+            info.fileSize = [FileUtils fileSizeAtPath:path isDir:&isDir];
+            info.isDir = isDir;
+          
             if (!tempResNameInfoDict[keyName]) {
-                BOOL isDir = NO;
-                ResourceFileInfo *info = [ResourceFileInfo new];
-                info.name = name;
-                info.path = path;
-                info.fileSize = [FileUtils fileSizeAtPath:path isDir:&isDir];
-                info.isDir = isDir;
-                tempResNameInfoDict[keyName] = info;
+                NSMutableArray *nameList = [[NSMutableArray alloc] init];
+                [nameList addObject:info];
+                tempResNameInfoDict[keyName] = nameList;
+            } else {
+              NSMutableArray *nameList = tempResNameInfoDict[keyName];
+              [nameList addObject:info];
             }
         }
         
@@ -147,8 +153,7 @@ static NSString * const kSuffixPng         = @".png";
         if (pathList.count) {
             for (NSString *path in pathList) {
                 // ignore if the resource file is in xxx/xxx.imageset/; xx/LaunchImage.launchimage; xx/AppIcon.appiconset; xx.bundle/xx
-                if (![self isInImageSetFolder:path]
-                    && [path rangeOfString:kSuffixBundle].location == NSNotFound) {
+                if (![self isInImageSetFolder:path]) {
                     [resources addObject:path];
                 }
             }

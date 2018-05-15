@@ -402,7 +402,7 @@ static NSString * const kResultIdentifyFilePath    = @"FilePath";
         tips = [tips stringByAppendingString:[NSString stringWithFormat:@"%ld strings", [ResourceStringSearcher sharedObject].resStringSet.count]];
     }
     self.statusLabel.stringValue = tips;
-    
+  
     if (self.isFileDone && self.isStringDone) {
         NSArray *resNames = [[[ResourceFileSearcher sharedObject].resNameInfoDict allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         for (NSString *name in resNames) {
@@ -410,11 +410,12 @@ static NSString * const kResultIdentifyFilePath    = @"FilePath";
                 if (!self.ignoreSimilarCheckbox.state
                     || ![[ResourceStringSearcher sharedObject] containsSimilarResourceName:name]) {
                     //TODO: if imageset name is A but contains png with name B, and using as B, should ignore A.imageset
-                    
-                    ResourceFileInfo *resInfo = [ResourceFileSearcher sharedObject].resNameInfoDict[name];
-                    if (!resInfo.isDir
-                        || ![self usingResWithDiffrentDirName:resInfo]) {
-                        [self.unusedResults addObject:resInfo];
+                    NSMutableArray *array = [ResourceFileSearcher sharedObject].resNameInfoDict[name];
+                    for (ResourceFileInfo *resInfo in array) {
+                        if (!resInfo.isDir
+                            || ![self usingResWithDiffrentDirName:resInfo]) {
+                          [self.unusedResults addObject:resInfo];
+                        }
                     }
                 }
             }
